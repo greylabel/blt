@@ -45,7 +45,7 @@ notifications:
 
 before_install:
   # Exit build early if only documentation was changed in a Pull Request.
-  - source ${BLT_DIR}/scripts/travis/exit_early
+  - source $BLT_DIR/scripts/travis/exit_early
   # Disable xdebug.
   - phpenv config-rm xdebug.ini
   - composer self-update
@@ -53,7 +53,7 @@ before_install:
   - composer install
 
 install:
-  - source ${BLT_DIR}/scripts/travis/setup_environment
+  - source $BLT_DIR/scripts/travis/setup_environment
   - source $BLT_DIR/scripts/travis/setup_project
 
 script:
