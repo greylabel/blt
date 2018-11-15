@@ -35,14 +35,14 @@ class RunTestsCommand extends DrupalTestCommand {
    */
   public function initialize() {
     parent::initialize();
-    $this->runTestsConfig = $this->getConfigValue('tests.drupal.run-tests');
+    $this->runTestsConfig = $this->getConfigValue('tests.run-tests');
     $this->runTestsScriptCommand = './core/scripts/run-tests.sh';
   }
 
   /**
    * Executes the Drupal run-tests.sh script.
    *
-   * @command tests:drupal:run-tests:run
+   * @command tests:run-tests:run
    * @aliases tdrtr
    */
   public function runTests() {

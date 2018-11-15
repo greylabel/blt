@@ -12,16 +12,16 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DrupalTestCommand extends TestsCommandBase {
 
-//APACHE_RUN_GROUP
-//APACHE_RUN_USER
-//BROWSERTEST_OUTPUT_DIRECTORY
-//MINK_DRIVER_ARGS
-//MINK_DRIVER_ARGS_PHANTOMJS
-//MINK_DRIVER_ARGS_WEBDRIVER
-//MINK_DRIVER_CLASS
-//SIMPLETEST_BASE_URL
-//SIMPLETEST_DB
-//SYMFONY_DEPRECATIONS_HELPER
+  const APACHE_RUN_GROUP = 'APACHE_RUN_GROUP';
+  const APACHE_RUN_USER = 'APACHE_RUN_USER';
+  const BROWSERTEST_OUTPUT_DIRECTORY = 'BROWSERTEST_OUTPUT_DIRECTORY';
+  const MINK_DRIVER_ARGS = 'MINK_DRIVER_ARGS';
+  const MINK_DRIVER_ARGS_PHANTOMJS = 'MINK_DRIVER_ARGS_PHANTOMJS';
+  const MINK_DRIVER_ARGS_WEBDRIVER = 'MINK_DRIVER_ARGS_WEBDRIVER';
+  const MINK_DRIVER_CLASS = 'MINK_DRIVER_CLASS';
+  const SIMPLETEST_BASE_URL = 'SIMPLETEST_BASE_URL';
+  const SIMPLETEST_DB = 'SIMPLETEST_DB';
+  const SYMFONY_DEPRECATIONS_HELPER = 'SYMFONY_DEPRECATIONS_HELPER';
 
   /**
    * Directory to store output printer files.
@@ -57,7 +57,7 @@ class DrupalTestCommand extends TestsCommandBase {
    * @var string
    */
   protected $drupalTestRunner;
-  
+
   /**
    * @var string
    */
@@ -80,24 +80,20 @@ class DrupalTestCommand extends TestsCommandBase {
     $this->chromeDriverPort = $this->getConfigValue('tests.drupal.chromedriver.port');
     $this->chromeDriverArgs = $this->getConfigValue('tests.drupal.chromedriver.args');
 
-    $this->apacheRunUser = $this->getConfigValue('tests.drupal.apache_run_user');
-    $this->apacheRunGroup = $this->getConfigValue('tests.drupal.apache_run_group');
     $this->browsertestOutputDirectory = $this->getConfigValue('tests.drupal.browsertest_output_directory');
 
-    $this->minkDriverArgs = $this->getConfigValue('tests.drupal.mink_driver_args');
-    $this->minkDriverArgsPhantomjs = $this->getConfigValue('tests.drupal.mink_driver_args_phantomjs');
-    $this->minkDriverArgsWebdriver = $this->getConfigValue('tests.drupal.mink_driver_args_webdriver');
-    $this->minkDriverClass = $this->getConfigValue('tests.drupal.mink_driver_class');
-
-    $this->simpletestBaseUrl = $this->getConfigValue('tests.drupal.simpletest_base_url');
-    $this->simpletestDb = $this->getConfigValue('tests.drupal.simpletest_db');
-
-    $this->symfonySeprecationsHelper = $this->getConfigValue('tests.drupal.symfony_deprecations_helper');
-
     $this->testingEnvironment = [
-
+      self::APACHE_RUN_GROUP => $this->getConfigValue('tests.drupal.apache_run_user'),
+      self::APACHE_RUN_USER => $this->getConfigValue('tests.drupal.apache_run_group'),
+      self::BROWSERTEST_OUTPUT_DIRECTORY => $this->getConfigValue('tests.drupal.browsertest_output_directory'),
+      self::MINK_DRIVER_ARGS => $this->getConfigValue('tests.drupal.mink_driver_args'),
+      self::MINK_DRIVER_ARGS_PHANTOMJS => $this->getConfigValue('tests.drupal.mink_driver_args_phantomjs'),
+      self::MINK_DRIVER_ARGS_WEBDRIVER => $this->getConfigValue('tests.drupal.mink_driver_args_webdriver'),
+      self::MINK_DRIVER_CLASS => $this->getConfigValue('tests.drupal.mink_driver_class'),
+      self::SIMPLETEST_BASE_URL => $this->getConfigValue('tests.drupal.simpletest_base_url'),
+      self::SIMPLETEST_DB => $this->getConfigValue('tests.drupal.simpletest_db'),
+      self::SYMFONY_DEPRECATIONS_HELPER => $this->getConfigValue('tests.drupal.symfony_deprecations_helper'),
     ];
-
   }
 
   /**
@@ -114,7 +110,7 @@ class DrupalTestCommand extends TestsCommandBase {
   public function test() {
     // Log config for debugging purposes.
     $this->logConfig($this->getConfigValue('tests'), 'tests');
-    
+
     try {
       $this->setupEnvironment();
       $this->launchWebDriver();
@@ -134,16 +130,22 @@ class DrupalTestCommand extends TestsCommandBase {
    * Setup environment variables for running Drupal tests.
    */
   protected function setupEnvironment() {
-    $this->task('export');
-
-
+    foreach ($this->testingEnvironment as $key => $value) {
+      if (!empty($value)) {
+        $this->taskExec('export')->arg("{$key}={$value}")->run();
+      }
+    }
   }
 
   /**
    * Cleanup environment variables for running Drupal tests.
    */
   protected function cleanupEnvironment() {
-    $this->task('unset');
+    foreach ($this->testingEnvironment as $key => $value) {
+      if (!empty($value)) {
+        $this->taskExec('unset')->arg($key)->run();
+      }
+    }
   }
 
   /**
@@ -163,7 +165,7 @@ class DrupalTestCommand extends TestsCommandBase {
       $this->killChromeDriver();
     }
   }
-  
+
   /**
    * Launches a headless chromedriver process.
    */
@@ -223,7 +225,7 @@ class DrupalTestCommand extends TestsCommandBase {
       $this->invokeCommand('tests:phpunit:run');
     }
     elseif ($this->drupalTestRunner == 'run-tests') {
-      $this->invokeCommand('tests:drupal:run-tests:run');
+      $this->invokeCommand('tests:run-tests:run');
     }
     else {
       throw new BltException("You must have tests.drupal.test-runner set to either phpunit or run-tests.");

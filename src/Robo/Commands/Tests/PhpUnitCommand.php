@@ -28,7 +28,7 @@ class PhpUnitCommand extends DrupalTestCommand {
    */
   public function initialize() {
     parent::initialize();
-    $this->phpunitConfig = $this->getConfigValue('tests.drupal.phpunit');
+    $this->phpunitConfig = $this->getConfigValue('tests.phpunit');
   }
 
   /**
